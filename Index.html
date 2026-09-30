@@ -1,0 +1,1019 @@
+```html
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Coding Quiz Master</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-card-light {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-slate-100 flex flex-col min-h-screen antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Background Decor -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl animate-pulse-glow"></div>
+        <div class="absolute top-1/2 -left-40 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl animate-pulse-glow" style="animation-delay: 1.5s;"></div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="relative z-10 w-full border-b border-slate-800/80 bg-slate-900/50 backdrop-blur-md px-4 lg:px-8 py-3">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="goHome()">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-brain text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">AI Coding Quiz</h1>
+                    <p class="text-xs text-brand-500 font-mono font-medium">v1.0 • 35 Soal Master</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-300 transition-all">
+                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+                <button onclick="showLeaderboardModal()" class="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 text-slate-300 text-sm font-semibold flex items-center space-x-2 transition-all">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span class="hidden sm:inline">Skor Tertinggi</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="relative z-10 flex-1 flex flex-col justify-center max-w-4xl w-full mx-auto p-4 sm:p-6 my-auto">
+        
+        <!-- SCREEN 1: WELCOME SCREEN -->
+        <div id="welcomeScreen" class="glass-card rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-800 relative overflow-hidden">
+            <div class="text-center max-w-2xl mx-auto">
+                <span class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-brand-500/10 text-brand-400 border border-brand-500/20 inline-block mb-4">
+                    <i class="fa-solid fa-sparkles mr-1.5"></i>Uji Pemahaman Artificial Intelligence
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+                    Asah Skill <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Coding AI</span> Kamu!
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base mb-8">
+                    Uji wawasanmu seputar Machine Learning, Python, LLM, Computer Vision, dan dasar-dasar pengembangan AI melalui 35 soal pilihan ganda interaktif.
+                </p>
+
+                <!-- Player Input -->
+                <div class="mb-8 text-left max-w-sm mx-auto">
+                    <label for="playerName" class="block text-xs font-semibold text-slate-300 mb-2 uppercase tracking-wider">Nama Pemain</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="text" id="playerName" placeholder="Masukkan nama kamu..." class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl py-3 pl-11 pr-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 font-medium">
+                    </div>
+                </div>
+
+                <!-- Mode Selection Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 text-left">
+                    <div onclick="selectGameMode('full')" id="modeFull" class="mode-card p-4 rounded-2xl bg-slate-800/50 hover:bg-slate-800 border-2 border-brand-500/80 cursor-pointer transition-all">
+                        <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-list-check text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-sm">35 Soal Lengkap</h3>
+                        <p class="text-xs text-slate-400 mt-1">Selesaikan seluruh koleksi 35 soal tanpa batas waktu santai.</p>
+                    </div>
+
+                    <div onclick="selectGameMode('quick')" id="modeQuick" class="mode-card p-4 rounded-2xl bg-slate-800/30 hover:bg-slate-800 border-2 border-slate-700/60 cursor-pointer transition-all">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-bolt text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-sm">10 Soal Cepat</h3>
+                        <p class="text-xs text-slate-400 mt-1">Mode kilat dengan 10 soal acak. Sangat cocok untuk kuis singkat.</p>
+                    </div>
+
+                    <div onclick="selectGameMode('timer')" id="modeTimer" class="mode-card p-4 rounded-2xl bg-slate-800/30 hover:bg-slate-800 border-2 border-slate-700/60 cursor-pointer transition-all">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-stopwatch text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-sm">Time Attack</h3>
+                        <p class="text-xs text-slate-400 mt-1">Batas waktu 15 detik untuk tiap soal! Uji kecepatan berpikirmu.</p>
+                    </div>
+                </div>
+
+                <button onclick="startQuiz()" class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-base shadow-xl shadow-brand-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                    <i class="fa-solid fa-play mr-2"></i>Mulai Kuis Sekarang
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: QUIZ GAMEPLAY SCREEN -->
+        <div id="quizScreen" class="hidden glass-card rounded-3xl p-5 sm:p-8 shadow-2xl border border-slate-800">
+            <!-- Top Status Bar -->
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800/80 gap-3">
+                <div class="flex items-center space-x-3">
+                    <span id="questionCounter" class="px-3 py-1 rounded-lg bg-slate-800 text-brand-400 font-mono text-xs font-semibold border border-slate-700">
+                        Soal 1/35
+                    </span>
+                    <div id="streakBadge" class="hidden items-center space-x-1 text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-lg text-xs font-bold border border-amber-400/20 animate-bounce">
+                        <i class="fa-solid fa-fire text-amber-500"></i>
+                        <span id="streakCount">0</span> Combo!
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Timer Indicator -->
+                    <div id="timerContainer" class="hidden items-center space-x-2 bg-slate-800 px-3 py-1 rounded-lg border border-slate-700">
+                        <i class="fa-regular fa-clock text-amber-400 text-xs"></i>
+                        <span id="timerDisplay" class="font-mono text-xs font-bold text-amber-400">15s</span>
+                    </div>
+
+                    <!-- Current Score -->
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold block">Skor</span>
+                        <span id="scoreDisplay" class="text-lg font-bold font-mono text-emerald-400">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-6">
+                <div id="progressBar" class="bg-gradient-to-r from-brand-500 to-indigo-400 h-full w-0 transition-all duration-300"></div>
+            </div>
+
+            <!-- Question Text Box -->
+            <div class="mb-6">
+                <h3 id="questionTitle" class="text-lg sm:text-xl font-bold text-slate-100 leading-relaxed">
+                    <!-- Question dynamically inserted -->
+                </h3>
+            </div>
+
+            <!-- Options Container -->
+            <div id="optionsContainer" class="grid grid-cols-1 gap-3.5 mb-6">
+                <!-- Option buttons dynamically generated -->
+            </div>
+
+            <!-- Explanation Callout Box -->
+            <div id="explanationBox" class="hidden p-4 rounded-xl bg-slate-800/80 border border-slate-700 text-sm mb-6 transition-all">
+                <div class="flex items-start space-x-3">
+                    <i id="explanationIcon" class="fa-solid fa-circle-info text-brand-400 text-lg mt-0.5"></i>
+                    <div>
+                        <h4 id="explanationHeader" class="font-bold text-slate-200 mb-1">Pembahasan:</h4>
+                        <p id="explanationText" class="text-slate-300 leading-relaxed text-xs sm:text-sm"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation Action -->
+            <div class="flex justify-end pt-2">
+                <button id="nextBtn" onclick="nextQuestion()" disabled class="px-6 py-3 rounded-xl bg-brand-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-500 text-white font-bold text-sm shadow-lg shadow-brand-500/20 transition-all flex items-center space-x-2">
+                    <span>Soal Berikutnya</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: RESULT SUMMARY SCREEN -->
+        <div id="resultScreen" class="hidden glass-card rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-800 text-center">
+            <div class="max-w-xl mx-auto">
+                <div id="resultBadge" class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-300 text-slate-900 flex items-center justify-center text-3xl font-black shadow-xl shadow-amber-500/20 mb-4 transform -rotate-3">
+                    A+
+                </div>
+
+                <h2 id="resultTitle" class="text-2xl sm:text-3xl font-extrabold text-white mb-2">Luar Biasa, AI Master!</h2>
+                <p id="resultSubtitle" class="text-slate-400 text-sm mb-6">Kamu berhasil menyelesaikan kuis coding AI dengan performa hebat!</p>
+
+                <!-- Score Grid -->
+                <div class="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-950/60 border border-slate-800 mb-8">
+                    <div class="p-2">
+                        <span class="text-xs text-slate-400 block mb-1">Total Skor</span>
+                        <span id="finalScore" class="text-2xl font-black font-mono text-brand-400">0</span>
+                    </div>
+                    <div class="p-2 border-x border-slate-800">
+                        <span class="text-xs text-slate-400 block mb-1">Akurasi</span>
+                        <span id="finalAccuracy" class="text-2xl font-black font-mono text-emerald-400">0%</span>
+                    </div>
+                    <div class="p-2">
+                        <span class="text-xs text-slate-400 block mb-1">Max Combo</span>
+                        <span id="finalStreak" class="text-2xl font-black font-mono text-amber-400">0🔥</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+                    <button onclick="toggleReviewMode()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-700 transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-list-check text-brand-400"></i>
+                        <span>Lihat Pembahasan</span>
+                    </button>
+                    <button onclick="restartQuiz()" class="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-lg shadow-brand-500/25 transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Main Lagi</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Review Questions Section -->
+            <div id="reviewContainer" class="hidden text-left mt-8 pt-8 border-t border-slate-800">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center justify-between">
+                    <span>Review Jawaban:</span>
+                    <span id="reviewFilterCount" class="text-xs font-normal text-slate-400">Menampilkan semua soal</span>
+                </h3>
+
+                <div id="reviewList" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Dynamic review cards -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- LEADERBOARD MODAL -->
+    <div id="leaderboardModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="glass-card max-w-md w-full rounded-3xl p-6 border border-slate-800 shadow-2xl relative">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-trophy text-amber-400 text-xl"></i>
+                    <h3 class="text-lg font-bold text-white">Papan Skor Lokal</h3>
+                </div>
+                <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div id="leaderboardList" class="space-y-2 mb-6 max-h-60 overflow-y-auto pr-1">
+                <!-- Dynamically filled -->
+            </div>
+
+            <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>Tersimpan di browser lokal</span>
+                <button onclick="clearLeaderboard()" class="text-rose-400 hover:underline">Hapus Riwayat</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ALL 35 QUESTIONS DATASET
+        const questionsData = [
+            {
+                id: 1,
+                question: "Apa kepanjangan dari \"AI\"?",
+                options: ["Automatic Interface", "Artificial Intelligence", "Applied Information", "Algorithm Input"],
+                answer: 1, // B
+                explanation: "AI merupakan singkatan dari Artificial Intelligence (Kecerdasan Buatan), yaitu kecerdasan yang ditambahkan kepada suatu sistem yang bisa diatur dalam konteks ilmiah."
+            },
+            {
+                id: 2,
+                question: "Bahasa pemrograman yang paling populer untuk Coding AI adalah...",
+                options: ["Java", "C++", "Python", "HTML"],
+                answer: 2, // C
+                explanation: "Python adalah bahasa utama dalam pengembangan AI karena memiliki sintaks yang sederhana dan ekosistem library AI/ML yang sangat kaya."
+            },
+            {
+                id: 3,
+                question: "Library Python yang sering digunakan untuk Machine Learning adalah...",
+                options: ["pygame", "scikit-learn", "tkinter", "flask"],
+                answer: 1, // B
+                explanation: "scikit-learn adalah pustaka open-source Python yang menyediakan berbagai algoritma Machine Learning seperti klasifikasi, regresi, dan clustering."
+            },
+            {
+                id: 4,
+                question: "Fungsi utama dari \"data training\" dalam AI adalah...",
+                options: ["Menghapus virus", "Melatih model agar bisa belajar dari contoh", "Membuat tampilan website", "Menyimpan password"],
+                answer: 1, // B
+                explanation: "Data training digunakan sebagai bahan latihan awal agar model Machine Learning dapat mempelajari pola, aturan, atau hubungan dalam data."
+            },
+            {
+                id: 5,
+                question: "Apa nama model AI yang bisa membuat teks seperti ChatGPT?",
+                options: ["CNN", "LLM - Large Language Model", "GPS", "URL"],
+                answer: 1, // B
+                explanation: "LLM (Large Language Model) adalah model pemrosesan bahasa alami berukuran besar yang dilatih dengan jutaan dokumen teks untuk menghasilkan teks mirip manusia."
+            },
+            {
+                id: 6,
+                question: "Perintah `import tensorflow` digunakan untuk...",
+                options: ["Membuat game", "Mengolah data dan membuat model Deep Learning", "Mengirim email", "Edit foto"],
+                answer: 1, // B
+                explanation: "TensorFlow adalah platform open-source buatan Google yang dirancang khusus untuk pengembangan dan pelatihan model Deep Learning serta Neural Networks."
+            },
+            {
+                id: 7,
+                question: "\"Overfitting\" pada model AI artinya...",
+                options: ["Model terlalu bagus di data training tapi jelek di data baru", "Model tidak bisa jalan", "Data terlalu sedikit", "Komputer kehabisan baterai"],
+                answer: 0, // A
+                explanation: "Overfitting terjadi ketika model terlalu 'menghafal' data training secara detail sehingga gagal melakukan generalisasi saat diberi data baru."
+            },
+            {
+                id: 8,
+                question: "Jenis AI yang bisa mengenali gambar kucing adalah...",
+                options: ["NLP", "Computer Vision", "Robotics", "Database"],
+                answer: 1, // B
+                explanation: "Computer Vision adalah cabang AI yang berfokus pada kemampuan komputer untuk memperoleh, mengolah, dan menganalisis informasi visual/gambar."
+            },
+            {
+                id: 9,
+                question: "Singkatan \"NLP\" dalam AI adalah...",
+                options: ["New Language Programming", "Natural Language Processing", "Network Link Protocol", "Number Logic Process"],
+                answer: 1, // B
+                explanation: "NLP (Natural Language Processing) adalah cabang AI yang membantu komputer memahami, menafsirkan, dan memanipulasi bahasa manusia."
+            },
+            {
+                id: 10,
+                question: "Apa fungsi `print()` dalam Python?",
+                options: ["Menghapus data", "Menampilkan output di layar", "Membuat loop", "Komentar"],
+                answer: 1, // B
+                explanation: "`print()` adalah fungsi bawaan Python untuk menampilkan output berupa teks atau nilai variabel ke konsol/layar."
+            },
+            {
+                id: 11,
+                question: "Dataset adalah...",
+                options: ["Kumpulan data yang digunakan untuk melatih AI", "Nama software", "Jenis virus", "Perangkat keras"],
+                answer: 0, // A
+                explanation: "Dataset merupakan sekumpulan data terstruktur yang digunakan untuk proses pelatihan, pengujian, dan evaluasi model AI."
+            },
+            {
+                id: 12,
+                question: "Perintah untuk membuat komentar di Python adalah...",
+                options: ["//", "/* */", "#", "<!-- -->"],
+                answer: 2, // C
+                explanation: "Di Python, tanda tag pagar (`#`) digunakan untuk menandai satu baris komentar yang diabaikan oleh penerjemah bahasa (interpreter)."
+            },
+            {
+                id: 13,
+                question: "Apa kepanjangan \"CNN\" dalam Computer Vision?",
+                options: ["Computer Neural Network", "Convolutional Neural Network", "Central Network Node", "Code Name Number"],
+                answer: 1, // B
+                explanation: "CNN (Convolutional Neural Network) adalah arsitektur Neural Network yang sangat efektif untuk memproses dan mengenali data berbentuk kisi visual/gambar."
+            },
+            {
+                id: 14,
+                question: "Algoritma yang digunakan untuk klasifikasi data sederhana adalah...",
+                options: ["K-Nearest Neighbors", "Microsoft Word", "Google Chrome", "Paint"],
+                answer: 0, // A
+                explanation: "K-Nearest Neighbors (KNN) adalah algoritma supervised learning sederhana yang mengklasifikasikan data berdasarkan kedekatan jarak antar data."
+            },
+            {
+                id: 15,
+                question: "Fungsi `model.fit()` dalam scikit-learn untuk apa?",
+                options: ["Menguji model", "Melatih model dengan data training", "Menghapus model", "Menyimpan gambar"],
+                answer: 1, // B
+                explanation: "Metode `model.fit(X_train, y_train)` digunakan untuk memulai proses kalkulasi dan pelatihan model berbasis data input dan label."
+            },
+            {
+                id: 16,
+                question: "Apa itu \"Bias\" dalam AI?",
+                options: ["Kesalahan karena model terlalu sederhana", "Warna di layar", "Kecepatan internet", "Nama variabel"],
+                answer: 0, // A
+                explanation: "Bias pada model AI terjadi saat asumsi awal model terlalu sederhana (underfitting), sehingga gagal menangkap pola hubungan dalam data."
+            },
+            {
+                id: 17,
+                question: "Library untuk mengolah data tabel di Python adalah...",
+                options: ["numpy", "pandas", "matplotlib", "os"],
+                answer: 1, // B
+                explanation: "Pandas menyediakan struktur data utama seperti DataFrame yang sangat ampuh untuk mengolah, membersihkan, dan menganalisis data tabel."
+            },
+            {
+                id: 18,
+                question: "Tujuan \"Validasi\" pada model AI adalah...",
+                options: ["Mengecek performa model di data yang belum dilihat", "Menghapus data", "Membuat password", "Install aplikasi"],
+                answer: 0, // A
+                explanation: "Proses validasi berguna untuk mengevaluasi ketepatan serta performa model pada himpunan data yang belum pernah dijumpai saat pelatihan."
+            },
+            {
+                id: 19,
+                question: "Apa itu \"Neuron\" dalam Neural Network?",
+                options: ["Unit dasar yang memproses informasi", "Nama kabel", "Jenis virus", "Tombol keyboard"],
+                answer: 0, // A
+                explanation: "Neuron (atau Node) adalah unit pemrosesan matematika dasar dalam jaringan saraf tiruan yang menerima masukan, bobot, dan menghasilkan luaran."
+            },
+            {
+                id: 20,
+                question: "Perintah Python untuk membuat list adalah...",
+                options: ["list = ()", "list = {}", "list = []", "list = <>"],
+                answer: 2, // C
+                explanation: "Dalam sintaks Python, list didefinisikan menggunakan kurung siku `[]`, sedangkan `()` untuk tuple dan `{}` untuk dictionary/set."
+            },
+            {
+                id: 21,
+                question: "AI yang digunakan untuk chatbot disebut...",
+                options: ["Computer Vision", "NLP", "Data Mining", "Cloud Computing"],
+                answer: 1, // B
+                explanation: "Chatbot mengandalkan Natural Language Processing (NLP) untuk memahami maksud pesan pengguna dan menyusun tanggapan balasan."
+            },
+            {
+                id: 22,
+                question: "Apa fungsi \"loss function\" dalam training AI?",
+                options: ["Mengukur seberapa salah prediksi model", "Menyimpan file", "Mengganti wallpaper", "Membuka browser"],
+                answer: 0, // A
+                explanation: "Loss function (Fungsi Kerugian) menghitung selisih antara hasil prediksi model dengan target asli, menjadi panduan optimasi AI."
+            },
+            {
+                id: 23,
+                question: "Ekstensi file untuk notebook Python adalah...",
+                options: [".docx", ".py", ".ipynb", ".pdf"],
+                answer: 2, // C
+                explanation: "Format `.ipynb` digunakan oleh Jupyter Notebook / Google Colab untuk menyimpan kombinasi kode, teks penjelasan, dan output gambar."
+            },
+            {
+                id: 24,
+                question: "\"Supervised Learning\" artinya...",
+                options: ["Belajar tanpa label data", "Belajar dengan data yang sudah ada label/jawabannya", "Belajar sambil tidur", "Belajar dari internet"],
+                answer: 1, // B
+                explanation: "Supervised Learning adalah metode di mana model dilatih menggunakan sampel data yang sudah diberi kunci label atau jawaban benar."
+            },
+            {
+                id: 25,
+                question: "Fungsi `split()` pada data digunakan untuk...",
+                options: ["Membagi data jadi data training dan data testing", "Menghapus data", "Menyalin file", "Mengirim data"],
+                answer: 0, // A
+                explanation: "Fungsi split (seperti `train_test_split`) berfungsi memisahkan porsi data untuk keperluan latihan dan pengujian objektif."
+            },
+            {
+                id: 26,
+                question: "Apa itu \"Prompt\" dalam AI generatif?",
+                options: ["Perintah/teks yang diberikan ke AI", "Nama folder", "Jenis virus", "Kabel data"],
+                answer: 0, // A
+                explanation: "Prompt adalah instruksi kalimat/teks masukan yang ditulis oleh pengguna untuk memerintahkan AI Generatif menghasilkan respon spesifik."
+            },
+            {
+                id: 27,
+                question: "Library untuk membuat grafik di Python adalah...",
+                options: ["pandas", "matplotlib", "scikit-learn", "random"],
+                answer: 1, // B
+                explanation: "Matplotlib adalah library visualisasi data paling populer di Python untuk membuat grafik 2D seperti line chart, bar chart, dan histogram."
+            },
+            {
+                id: 28,
+                question: "\"Unsupervised Learning\" contohnya adalah...",
+                options: ["Clustering", "Menghitung 1+1", "Mengetik di Word", "Buka YouTube"],
+                answer: 0, // A
+                explanation: "Clustering (seperti K-Means) adalah contoh Unsupervised Learning karena mengelompokkan data tanpa membutuhkan label/jawaban sebelumnya."
+            },
+            {
+                id: 29,
+                question: "Perintah untuk mengulang kode 10 kali di Python adalah...",
+                options: ["if", "for i in range(10):", "print", "import"],
+                answer: 1, // B
+                explanation: "Sintaks `for i in range(10):` akan menjalankan blok kode secara berulang sebanyak 10 kali (dari indeks 0 sampai 9)."
+            },
+            {
+                id: 30,
+                question: "Apa kepanjangan \"GPU\" yang penting untuk training AI?",
+                options: ["General Processing Unit", "Graphics Processing Unit", "Game Playing Utility", "Global Program Update"],
+                answer: 1, // B
+                explanation: "GPU (Graphics Processing Unit) dirancang untuk pemrosesan paralel skala besar, sangat ideal mempercepat pelatihan jaringan saraf AI."
+            },
+            {
+                id: 31,
+                question: "Tujuan \"Data Cleaning\" adalah...",
+                options: ["Membersihkan data dari yang kosong/salah sebelum dipakai", "Menghapus komputer", "Mengganti tema", "Download file"],
+                answer: 0, // A
+                explanation: "Data Cleaning merupakan tahap menghapus duplikasi, menangani nilai hilang (missing values), dan memperbaiki format data yang keliru."
+            },
+            {
+                id: 32,
+                question: "Model AI yang bisa membuat gambar dari teks disebut...",
+                options: ["LLM", "Generative AI / Text-to-Image", "Database", "Spreadsheet"],
+                answer: 1, // B
+                explanation: "Model Generative AI Text-to-Image (seperti Midjourney, DALL-E, atau Stable Diffusion) dapat memvisualisasikan deskripsi teks menjadi gambar karya seni."
+            },
+            {
+                id: 33,
+                question: "Perintah `if x > 5:` adalah contoh...",
+                options: ["Loop", "Percabangan / Kondisi", "Fungsi", "Komentar"],
+                answer: 1, // B
+                explanation: "Struktur `if` digunakan untuk pengambilan keputusan (percabangan kondisi), di mana blok kode berjalan jika syarat bernilai True."
+            },
+            {
+                id: 34,
+                question: "Apa itu \"API\" dalam coding?",
+                options: ["Cara program berkomunikasi dengan program lain", "Nama makanan", "Jenis monitor", "Sistem operasi"],
+                answer: 0, // A
+                explanation: "API (Application Programming Interface) adalah antarmuka yang memungkinkan dua atau lebih aplikasi/sistem saling bertukar data secara aman."
+            },
+            {
+                id: 35,
+                question: "Langkah pertama sebelum membuat model AI adalah...",
+                options: ["Langsung coding", "Mengumpulkan dan memahami data", "Main game", "Nonton video"],
+                answer: 1, // B
+                explanation: "Sebelum menulis baris kode model, pengembang harus memahami permasalahan bisnis dan mengumpulkan dataset yang sesuai dan berkualitas."
+            }
+        ];
+
+        // APP STATE VARIABLES
+        let activeQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = []; // Records user selections
+        let currentStreak = 0;
+        let maxStreak = 0;
+        let gameMode = 'full'; // 'full', 'quick', 'timer'
+        let timerInterval = null;
+        let timeLeft = 15;
+        let soundEnabled = true;
+
+        // Audio Synthesizer setup using Web Audio API (No external sound assets needed)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now); // A3
+                    osc.frequency.exponentialRampToValueAtTime(146.83, now + 0.25); // D3
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'streak') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(587.33, now); // D5
+                    osc.frequency.setValueAtTime(880, now + 0.1); // A5
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                }
+            } catch (e) {
+                console.log("Audio not supported or blocked");
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+            }
+        }
+
+        function selectGameMode(mode) {
+            gameMode = mode;
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('border-brand-500/80', 'bg-slate-800');
+                card.classList.add('border-slate-700/60', 'bg-slate-800/30');
+            });
+
+            let activeCardId = 'modeFull';
+            if (mode === 'quick') activeCardId = 'modeQuick';
+            if (mode === 'timer') activeCardId = 'modeTimer';
+
+            const card = document.getElementById(activeCardId);
+            card.classList.remove('border-slate-700/60', 'bg-slate-800/30');
+            card.classList.add('border-brand-500/80', 'bg-slate-800');
+        }
+
+        function goHome() {
+            clearInterval(timerInterval);
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+        }
+
+        function startQuiz() {
+            const nameInput = document.getElementById('playerName').value.trim();
+            if (!nameInput) {
+                document.getElementById('playerName').focus();
+                document.getElementById('playerName').classList.add('ring-2', 'ring-rose-500');
+                setTimeout(() => {
+                    document.getElementById('playerName').classList.remove('ring-2', 'ring-rose-500');
+                }, 1500);
+                return;
+            }
+
+            // Prepare questions based on selected mode
+            let datasetCopy = [...questionsData];
+            if (gameMode === 'quick') {
+                // Shuffle and pick 10
+                datasetCopy.sort(() => Math.random() - 0.5);
+                activeQuestions = datasetCopy.slice(0, 10);
+            } else if (gameMode === 'timer') {
+                datasetCopy.sort(() => Math.random() - 0.5);
+                activeQuestions = datasetCopy;
+            } else {
+                activeQuestions = datasetCopy; // 35 questions full
+            }
+
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            currentStreak = 0;
+            maxStreak = 0;
+
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+
+            // Show timer container if mode is timer
+            const timerContainer = document.getElementById('timerContainer');
+            if (gameMode === 'timer') {
+                timerContainer.classList.remove('hidden');
+                timerContainer.classList.add('flex');
+            } else {
+                timerContainer.classList.add('hidden');
+                timerContainer.classList.remove('flex');
+            }
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            clearInterval(timerInterval);
+            const q = activeQuestions[currentQuestionIndex];
+
+            // Update Progress Header
+            document.getElementById('questionCounter').innerText = `Soal ${currentQuestionIndex + 1}/${activeQuestions.length}`;
+            document.getElementById('scoreDisplay').innerText = score;
+            
+            const progressPercent = ((currentQuestionIndex) / activeQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+
+            // Streak Badge
+            const streakBadge = document.getElementById('streakBadge');
+            if (currentStreak >= 2) {
+                streakBadge.classList.remove('hidden');
+                streakBadge.classList.add('flex');
+                document.getElementById('streakCount').innerText = currentStreak;
+            } else {
+                streakBadge.classList.add('hidden');
+                streakBadge.classList.remove('flex');
+            }
+
+            // Title & Reset UI
+            document.getElementById('questionTitle').innerText = `${q.id}. ${q.question}`;
+            document.getElementById('explanationBox').classList.add('hidden');
+            document.getElementById('nextBtn').disabled = true;
+
+            // Render Option Buttons
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full text-left p-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-sm font-medium flex items-center justify-between group`;
+                btn.onclick = () => selectOption(idx);
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 group-hover:border-brand-500 group-hover:text-brand-400 flex items-center justify-center font-mono font-bold text-xs transition-colors">
+                            ${optionLabels[idx]}
+                        </span>
+                        <span>${escapeHtml(opt)}</span>
+                    </div>
+                    <i class="fa-regular fa-circle text-slate-600 group-hover:text-slate-400 text-base"></i>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Start timer if Timer mode
+            if (gameMode === 'timer') {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            timeLeft = 15;
+            const timerDisplay = document.getElementById('timerDisplay');
+            timerDisplay.innerText = `${timeLeft}s`;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = `${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // Time expired - treat as incorrect (select -1)
+                    selectOption(-1);
+                }
+            }, 1000);
+        }
+
+        function selectOption(selectedIndex) {
+            clearInterval(timerInterval);
+            const q = activeQuestions[currentQuestionIndex];
+            const isCorrect = selectedIndex === q.answer;
+
+            // Save user answer
+            userAnswers.push({
+                questionObj: q,
+                selectedIndex: selectedIndex,
+                isCorrect: isCorrect
+            });
+
+            const optionBtns = document.querySelectorAll('.option-btn');
+            optionBtns.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                score += 10 + (currentStreak * 2); // Bonus score for streak
+                currentStreak++;
+                if (currentStreak > maxStreak) maxStreak = currentStreak;
+                
+                if (currentStreak >= 3) {
+                    playSound('streak');
+                } else {
+                    playSound('correct');
+                }
+            } else {
+                currentStreak = 0;
+                playSound('wrong');
+            }
+
+            // Highlight Options Visual Feedback
+            optionBtns.forEach((btn, idx) => {
+                if (idx === q.answer) {
+                    // Correct answer style
+                    btn.className = "option-btn w-full text-left p-4 rounded-xl bg-emerald-500/15 border-2 border-emerald-500 text-emerald-200 text-sm font-semibold flex items-center justify-between";
+                    btn.querySelector('i').className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+                } else if (idx === selectedIndex && !isCorrect) {
+                    // Wrong selection style
+                    btn.className = "option-btn w-full text-left p-4 rounded-xl bg-rose-500/15 border-2 border-rose-500 text-rose-200 text-sm font-semibold flex items-center justify-between";
+                    btn.querySelector('i').className = "fa-solid fa-circle-xmark text-rose-400 text-lg";
+                } else {
+                    btn.className = "option-btn w-full text-left p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 text-slate-500 text-sm font-medium flex items-center justify-between opacity-50";
+                }
+            });
+
+            // Show Explanation Box
+            const expBox = document.getElementById('explanationBox');
+            const expHeader = document.getElementById('explanationHeader');
+            const expText = document.getElementById('explanationText');
+
+            expBox.classList.remove('hidden');
+            if (isCorrect) {
+                expBox.className = "p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-sm mb-6";
+                expHeader.className = "font-bold text-emerald-400 mb-1";
+                expHeader.innerText = "Jawaban Tepat!";
+            } else {
+                expBox.className = "p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-sm mb-6";
+                expHeader.className = "font-bold text-rose-400 mb-1";
+                expHeader.innerText = selectedIndex === -1 ? "Waktu Habis!" : "Jawaban Kurang Tepat!";
+            }
+            expText.innerText = q.explanation;
+
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < activeQuestions.length) {
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+
+            const total = activeQuestions.length;
+            const correctCount = userAnswers.filter(a => a.isCorrect).length;
+            const accuracy = Math.round((correctCount / total) * 100);
+
+            // Update UI Displays
+            document.getElementById('finalScore').innerText = score;
+            document.getElementById('finalAccuracy').innerText = `${accuracy}%`;
+            document.getElementById('finalStreak').innerText = `${maxStreak}🔥`;
+
+            // Grade Badge
+            const badge = document.getElementById('resultBadge');
+            const title = document.getElementById('resultTitle');
+            const subtitle = document.getElementById('resultSubtitle');
+
+            if (accuracy >= 90) {
+                badge.innerText = "S";
+                badge.className = "w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-amber-400 to-yellow-200 text-slate-900 flex items-center justify-center text-4xl font-black shadow-xl shadow-amber-500/30 mb-4 transform -rotate-3";
+                title.innerText = "Sempurna! AI Master Genius 🧠";
+                subtitle.innerText = "Pemahamanmu tentang coding dan konsep AI sangat mendalam!";
+            } else if (accuracy >= 70) {
+                badge.innerText = "A";
+                badge.className = "w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-indigo-500 to-brand-400 text-white flex items-center justify-center text-4xl font-black shadow-xl shadow-indigo-500/30 mb-4 transform -rotate-3";
+                title.innerText = "Hebat! AI Engineer Pro 🚀";
+                subtitle.innerText = "Kamu menguasai sebagian besar materi coding AI dengan baik!";
+            } else if (accuracy >= 50) {
+                badge.innerText = "B";
+                badge.className = "w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-sky-500 to-blue-400 text-white flex items-center justify-center text-4xl font-black shadow-xl shadow-blue-500/30 mb-4 transform -rotate-3";
+                title.innerText = "Bagus! Terus Latihan 👍";
+                subtitle.innerText = "Dasar-dasarmu sudah baik, tingkatkan lagi pemahaman materi kuis.";
+            } else {
+                badge.innerText = "C";
+                badge.className = "w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-slate-600 to-slate-400 text-white flex items-center justify-center text-4xl font-black shadow-xl mb-4 transform -rotate-3";
+                title.innerText = "Jangan Menyerah! 💡";
+                subtitle.innerText = "Coba pelajari lagi materi kuis dari pembahasan dan ulangi tesnya.";
+            }
+
+            // Confetti effect for good score
+            if (accuracy >= 60 && typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // Save score to local storage
+            const name = document.getElementById('playerName').value.trim() || 'Anonim';
+            saveScore(name, score, accuracy, gameMode);
+        }
+
+        function toggleReviewMode() {
+            const container = document.getElementById('reviewContainer');
+            const reviewList = document.getElementById('reviewList');
+
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                reviewList.innerHTML = '';
+
+                const optionLabels = ['A', 'B', 'C', 'D'];
+
+                userAnswers.forEach((ans, index) => {
+                    const q = ans.questionObj;
+                    const card = document.createElement('div');
+                    card.className = `p-4 rounded-xl border ${ans.isCorrect ? 'bg-slate-900/60 border-slate-800' : 'bg-rose-950/20 border-rose-900/40'} text-xs sm:text-sm space-y-2`;
+
+                    const userChoiceText = ans.selectedIndex >= 0 ? `${optionLabels[ans.selectedIndex]}. ${q.options[ans.selectedIndex]}` : 'Tidak Dijawab (Waktu Habis)';
+                    const correctChoiceText = `${optionLabels[q.answer]}. ${q.options[q.answer]}`;
+
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="font-bold text-slate-200">${index + 1}. ${escapeHtml(q.question)}</span>
+                            <span class="px-2 py-0.5 rounded font-bold text-[10px] shrink-0 ${ans.isCorrect ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
+                                ${ans.isCorrect ? 'BENAR' : 'SALAH'}
+                            </span>
+                        </div>
+                        <div class="text-slate-400 space-y-1 font-mono text-xs">
+                            <p>Jawabanmu: <span class="${ans.isCorrect ? 'text-emerald-400' : 'text-rose-400'}">${escapeHtml(userChoiceText)}</span></p>
+                            ${!ans.isCorrect ? `<p>Kunci Jawaban: <span class="text-emerald-400">${escapeHtml(correctChoiceText)}</span></p>` : ''}
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-slate-950/80 text-slate-300 font-sans text-xs border border-slate-800 mt-2">
+                            <strong class="text-brand-400 block mb-0.5">Penjelasan:</strong> ${escapeHtml(q.explanation)}
+                        </div>
+                    `;
+                    reviewList.appendChild(card);
+                });
+
+                container.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function restartQuiz() {
+            document.getElementById('reviewContainer').classList.add('hidden');
+            startQuiz();
+        }
+
+        function saveScore(name, score, accuracy, mode) {
+            let leaderboard = JSON.parse(localStorage.getItem('ai_quiz_scores') || '[]');
+            leaderboard.push({
+                name: name,
+                score: score,
+                accuracy: accuracy,
+                mode: mode,
+                date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+            });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 10); // Keep top 10
+            localStorage.setItem('ai_quiz_scores', JSON.stringify(leaderboard));
+        }
+
+        function showLeaderboardModal() {
+            const listContainer = document.getElementById('leaderboardList');
+            let leaderboard = JSON.parse(localStorage.getItem('ai_quiz_scores') || '[]');
+
+            listContainer.innerHTML = '';
+            if (leaderboard.length === 0) {
+                listContainer.innerHTML = `<p class="text-center text-slate-500 text-xs py-6">Belum ada skor tersimpan. Mainkan kuis untuk mencatatkan skormu!</p>`;
+            } else {
+                leaderboard.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = "flex items-center justify-between p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-xs";
+                    
+                    let medal = `<span class="w-6 text-slate-400 font-mono font-bold">${idx + 1}.</span>`;
+                    if (idx === 0) medal = `<span class="w-6 text-amber-400 font-bold"><i class="fa-solid fa-crown text-xs"></i></span>`;
+                    if (idx === 1) medal = `<span class="w-6 text-slate-300 font-bold"><i class="fa-solid fa-medal text-xs"></i></span>`;
+                    if (idx === 2) medal = `<span class="w-6 text-amber-600 font-bold"><i class="fa-solid fa-award text-xs"></i></span>`;
+
+                    row.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            ${medal}
+                            <div>
+                                <span class="font-bold text-slate-200 block">${escapeHtml(item.name)}</span>
+                                <span class="text-[10px] text-slate-500">${item.date} • Mode ${item.mode.toUpperCase()}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-mono font-bold text-emerald-400 block text-sm">${item.score}</span>
+                            <span class="text-[10px] text-slate-400">${item.accuracy}% Akurasi</span>
+                        </div>
+                    `;
+                    listContainer.appendChild(row);
+                });
+            }
+
+            document.getElementById('leaderboardModal').classList.remove('hidden');
+            document.getElementById('leaderboardModal').classList.add('flex');
+        }
+
+        function closeLeaderboardModal() {
+            document.getElementById('leaderboardModal').classList.add('hidden');
+            document.getElementById('leaderboardModal').classList.remove('flex');
+        }
+
+        function clearLeaderboard() {
+            if (confirm("Apakah Anda yakin ingin menghapus seluruh riwayat skor tinggi?")) {
+                localStorage.removeItem('ai_quiz_scores');
+                showLeaderboardModal();
+            }
+        }
+
+        // Helper Utility Functions
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Window load initializer
+        window.onload = function() {
+            selectGameMode('full');
+        };
+    </script>
+</body>
+</html>
